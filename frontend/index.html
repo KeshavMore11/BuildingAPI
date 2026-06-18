@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gokuldham Society - Resident Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏠</text></svg>">
+</head>
+<body>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- API CONFIG MODAL -->
+    <div class="modal" id="apiConfigModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">API Connection Settings</h3>
+                <button class="modal-close" id="closeApiConfig">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="apiUrlInput">Backend API URL</label>
+                <input type="text" class="form-control" id="apiUrlInput" placeholder="https://buildingapi-ep6h.onrender.com">
+                <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 6px; display: block;">
+                    Specify the backend FastAPI server URL. Defaults to the Render production build.
+                </small>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-secondary" id="resetApiConfig">Reset Default</button>
+                <button class="btn btn-primary" id="saveApiConfig">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. AUTHENTICATION VIEW (Default) -->
+    <div class="auth-page view-section active" id="authView">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">G</div>
+                <h1>Gokuldham Society</h1>
+                <p>Resident & Admin Service Portal</p>
+                <button class="btn-link" id="openApiSettingsBtn" style="font-size: 0.8rem; margin-top: 10px;">
+                    ⚙️ Configure API Connection
+                </button>
+            </div>
+
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">Login</div>
+                <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Register</div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" class="form-control" id="loginEmail" required placeholder="name@gokuldham.com">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" class="form-control" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    Log In
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" class="form-control" id="registerName" required placeholder="e.g. Jethalal Gada">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email Address</label>
+                    <input type="email" class="form-control" id="registerEmail" required placeholder="jetha@gadaelectronics.com">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" class="form-control" id="registerPassword" required minlength="6" placeholder="At least 6 characters">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    Create Account
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MAIN APPLICATION WORKSPACE -->
+    <div class="app-container" id="appWorkspace">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-section">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">
+                    <h2>Gokuldham</h2>
+                    <p>Cooperative Housing</p>
+                </div>
+            </div>
+
+            <!-- Logged In User Profile -->
+            <div class="user-profile-badge">
+                <div class="user-name" id="userNameBadge">Loading User...</div>
+                <div class="user-role" id="userRoleBadge">Member</div>
+            </div>
+
+            <!-- Dynamic Navigation Links -->
+            <nav style="flex-grow: 1;">
+                <!-- Member Navigation Links -->
+                <ul class="nav-links" id="memberNav">
+                    <li class="nav-link active" onclick="switchPortalTab('my-complaints')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>My Complaints</span>
+                    </li>
+                    <li class="nav-link" onclick="switchPortalTab('file-complaint')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>File Complaint</span>
+                    </li>
+                    <li class="nav-link" onclick="switchPortalTab('proposals')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <span>Proposals & Voting</span>
+                    </li>
+                    <li class="nav-link" onclick="switchPortalTab('submit-proposal')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span>Submit Proposal</span>
+                    </li>
+                </ul>
+
+                <!-- Admin Navigation Links -->
+                <ul class="nav-links" id="adminNav" style="display: none;">
+                    <li class="nav-link active" onclick="switchPortalTab('admin-overview')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <span>Overview Stats</span>
+                    </li>
+                    <li class="nav-link" onclick="switchPortalTab('admin-complaints')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>Complaints Manager</span>
+                    </li>
+                    <li class="nav-link" onclick="switchPortalTab('admin-proposals')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        <span>Proposals Manager</span>
+                    </li>
+                    <li class="nav-link" onclick="switchPortalTab('admin-technicians')">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span>Technicians Directory</span>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Sidebar Footer Config & Logout -->
+            <div class="sidebar-footer">
+                <button class="btn btn-secondary" onclick="openApiConfigModal()" style="padding: 8px 12px; font-size: 0.8rem;">
+                    ⚙️ API Config
+                </button>
+                <button class="btn btn-danger" id="logoutBtn" style="padding: 10px 16px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px; vertical-align: middle;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+
+            <!-- ============ MEMBER PORTAL VIEWS ============ -->
+
+            <!-- View: My Complaints -->
+            <section class="view-section active" id="view-my-complaints">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Complaints & Maintenance</h1>
+                        <p>Track your reported society maintenance requests</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="switchPortalTab('file-complaint')">+ Report New Issue</button>
+                </div>
+                <div id="myComplaintsList" class="cards-grid">
+                    <!-- Dynamic List of Complaints -->
+                </div>
+            </section>
+
+            <!-- View: File Complaint -->
+            <section class="view-section" id="view-file-complaint">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>File a Complaint</h1>
+                        <p>Report issues like water leaks, electric faults, lift problems to Bhide ji</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="switchPortalTab('my-complaints')">Back to List</button>
+                </div>
+                <div style="background-color: var(--card-bg); padding: 32px; border-radius: var(--radius-md); border: 1px solid var(--border-color); max-width: 680px; box-shadow: var(--shadow-sm);">
+                    <form id="newComplaintForm">
+                        <div class="form-group">
+                            <label for="complaintTitle">Complaint Title / Location</label>
+                            <input type="text" class="form-control" id="complaintTitle" required placeholder="e.g. Water dripping from Wing A lobby ceiling">
+                        </div>
+                        <div class="form-group">
+                            <label for="complaintDesc">Detailed Description</label>
+                            <textarea class="form-control" id="complaintDesc" rows="4" required placeholder="Describe the issue in detail so that the technician knows what is needed..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="complaintImage">Attach Image (Evidence)</label>
+                            <input type="file" class="form-control" id="complaintImage" accept="image/*" onchange="previewImage(this, 'complaintPreview')">
+                            <div class="image-preview-container" id="complaintPreviewContainer">
+                                <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin: 8px 0 4px 0;">Image Preview:</p>
+                                <img id="complaintPreview" src="" alt="Evidence Preview">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 10px;" id="submitComplaintBtn">
+                            Submit Maintenance Request
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- View: Proposals & Polling -->
+            <section class="view-section" id="view-proposals">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Society Proposals & Voting</h1>
+                        <p>Vote on upcoming maintenance upgrades and infrastructure proposals</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="switchPortalTab('submit-proposal')">+ Submit New Proposal</button>
+                </div>
+                <div id="proposalsList" class="cards-grid">
+                    <!-- Dynamic List of Proposals -->
+                </div>
+            </section>
+
+            <!-- View: Submit Proposal -->
+            <section class="view-section" id="view-submit-proposal">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Submit a Proposal</h1>
+                        <p>Propose upgrades like CCTV installations, EV chargers, or garden benches</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="switchPortalTab('proposals')">Back to Proposals</button>
+                </div>
+                <div style="background-color: var(--card-bg); padding: 32px; border-radius: var(--radius-md); border: 1px solid var(--border-color); max-width: 680px; box-shadow: var(--shadow-sm);">
+                    <form id="newProposalForm">
+                        <div class="form-group">
+                            <label for="proposalTitle">Upgrade/Proposal Title</label>
+                            <input type="text" class="form-control" id="proposalTitle" required placeholder="e.g. Installing Solar Panels on Wing B terrace">
+                        </div>
+                        <div class="form-group">
+                            <label for="proposalDesc">Detailed Scope & Budget (Estimate)</label>
+                            <textarea class="form-control" id="proposalDesc" rows="4" required placeholder="Describe what needs to be upgraded, how it helps society residents, and estimated costs..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-check">
+                                <input type="checkbox" id="proposalPollEnabled" checked>
+                                Launch Poll Automatically (Allow members to vote)
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="proposalImage">Attach Concept Plan Image</label>
+                            <input type="file" class="form-control" id="proposalImage" accept="image/*" onchange="previewImage(this, 'proposalPreview')">
+                            <div class="image-preview-container" id="proposalPreviewContainer">
+                                <p style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin: 8px 0 4px 0;">Image Preview:</p>
+                                <img id="proposalPreview" src="" alt="Proposal Preview">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="margin-top: 10px;" id="submitProposalBtn">
+                            Submit Society Upgrade Proposal
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+
+            <!-- ============ ADMIN/SECRETARY PORTAL VIEWS ============ -->
+
+            <!-- View: Admin Overview/Dashboard Stats -->
+            <section class="view-section" id="view-admin-overview">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Gokuldham Secretary Dashboard</h1>
+                        <p>Administrative summary and operations overview</p>
+                    </div>
+                </div>
+
+                <!-- Stats Dashboard Grid -->
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <div class="stats-icon" style="background-color: var(--info-bg); color: var(--info);">📋</div>
+                        <div class="stats-info">
+                            <div class="stats-value" id="statTotalComplaints">0</div>
+                            <div class="stats-label">Total Issues</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon" style="background-color: var(--danger-bg); color: var(--danger);">⚠️</div>
+                        <div class="stats-info">
+                            <div class="stats-value" id="statPendingComplaints">0</div>
+                            <div class="stats-label">Pending</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon" style="background-color: var(--warning-bg); color: var(--warning);">⚙️</div>
+                        <div class="stats-info">
+                            <div class="stats-value" id="statProgressComplaints">0</div>
+                            <div class="stats-label">In Progress</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon" style="background-color: var(--success-bg); color: var(--success);">✅</div>
+                        <div class="stats-info">
+                            <div class="stats-value" id="statCompletedComplaints">0</div>
+                            <div class="stats-label">Completed</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-icon" style="background-color: var(--primary-light); color: var(--primary);">🗳️</div>
+                        <div class="stats-info">
+                            <div class="stats-value" id="statTotalProposals">0</div>
+                            <div class="stats-label">Proposals</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Quick actions panel -->
+                <div class="cards-grid">
+                    <div class="item-card">
+                        <h3>Quick Action: Assign Maintenance</h3>
+                        <p class="description">Review pending complaints raised by residents and allocate them to society plumbers, electricians, or carpenters.</p>
+                        <button class="btn btn-primary" onclick="switchPortalTab('admin-complaints')">View Complaints Manager</button>
+                    </div>
+                    <div class="item-card">
+                        <h3>Quick Action: Approve Upgrades</h3>
+                        <p class="description">Check member proposals that have received active support from Gokuldham voting polls and finalize their status.</p>
+                        <button class="btn btn-accent" onclick="switchPortalTab('admin-proposals')">View Proposals Manager</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- View: Admin Complaints Manager -->
+            <section class="view-section" id="view-admin-complaints">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>All Complaints Manager</h1>
+                        <p>Allocate service staff and update resolutions of society complaints</p>
+                    </div>
+                </div>
+                <div id="adminComplaintsList" class="cards-grid">
+                    <!-- Dynamic List of All Complaints -->
+                </div>
+            </section>
+
+            <!-- View: Admin Proposals Manager -->
+            <section class="view-section" id="view-admin-proposals">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Proposals Approvals</h1>
+                        <p>Approve or Reject society improvement proposals based on voting results</p>
+                    </div>
+                </div>
+                <div id="adminProposalsList" class="cards-grid">
+                    <!-- Dynamic List of All Proposals for Admin -->
+                </div>
+            </section>
+
+            <!-- View: Admin Technicians Directory -->
+            <section class="view-section" id="view-admin-technicians">
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>Service Technicians Directory</h1>
+                        <p>Manage list of plumbers, electricians, and other registered staff</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 32px; align-items: start;">
+                    
+                    <!-- Add Technician Form Card -->
+                    <div style="background-color: var(--card-bg); padding: 28px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                        <h3 style="margin-bottom: 20px;">Register New Technician</h3>
+                        <form id="newTechnicianForm">
+                            <div class="form-group">
+                                <label for="techName">Technician Name</label>
+                                <input type="text" class="form-control" id="techName" required placeholder="e.g. Abdul Latif">
+                            </div>
+                            <div class="form-group">
+                                <label for="techCraft">Craft Type</label>
+                                <select class="form-control" id="techCraft" required>
+                                    <option value="Plumber">Plumber</option>
+                                    <option value="Electrician">Electrician</option>
+                                    <option value="Carpenter">Carpenter</option>
+                                    <option value="Lift Technician">Lift Technician</option>
+                                    <option value="Mason">Mason</option>
+                                    <option value="Labor">Labor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="techPhone">Phone Number</label>
+                                <input type="tel" class="form-control" id="techPhone" required placeholder="e.g. +91 98765 43210">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                Register Technician
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Technicians List Card -->
+                    <div style="background-color: var(--card-bg); padding: 28px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); min-height: 300px;">
+                        <h3 style="margin-bottom: 20px;">Registered Service Staff</h3>
+                        <div id="techniciansList" style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Dynamic Technicians List -->
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Application Main Script -->
+    <script src="app.js"></script>
+</body>
+</html>

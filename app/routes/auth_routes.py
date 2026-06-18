@@ -1,7 +1,8 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from app.models.user_models import UserRegister, UserLogin, UserResponse
 from app.models.auth_models import Token
 from app.services.auth_service import AuthService
+from app.dependencies.auth_dependency import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -29,3 +30,14 @@ def login_user(user_in: UserLogin):
     Verifies user credentials and issues a JWT token.
     """
     return AuthService.login(user_in)
+
+@router.get(
+    "/me",
+    response_model=UserResponse,
+    summary="Get current logged in user details"
+)
+def get_me(current_user: dict = Depends(get_current_user)):
+    """
+    Returns the profile metadata of the currently authenticated user session.
+    """
+    return current_user
