@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.routes.auth_routes import router as auth_router
 from app.routes.complaint_routes import router as complaint_router
@@ -36,9 +37,12 @@ app.include_router(proposal_router)
 app.include_router(poll_router)
 app.include_router(admin_router)
 
+# Mount the static frontend directory to serve the Gokuldham Portal UI
+app.mount("/portal", StaticFiles(directory="frontend", html=True), name="frontend")
+
 @app.get("/", include_in_schema=False)
 def root_redirect():
     """
-    Redirect root index page requests directly to Swagger API interactive docs.
+    Redirect root index page requests directly to the Gokuldham Resident Portal UI.
     """
-    return RedirectResponse(url="/docs")
+    return RedirectResponse(url="/portal")
