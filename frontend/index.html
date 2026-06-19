@@ -89,14 +89,34 @@
     <!-- 2. MAIN APPLICATION WORKSPACE -->
     <div class="app-container" id="appWorkspace">
         
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
+        <!-- Mobile Header Bar -->
+        <header class="mobile-header">
             <div class="logo-section">
                 <div class="logo-icon">G</div>
                 <div class="logo-text">
                     <h2>Gokuldham</h2>
                     <p>Cooperative Housing</p>
                 </div>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- Sidebar Overlay backdrop -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebarMenu">
+            <div class="logo-section">
+                <div class="logo-icon">G</div>
+                <div class="logo-text">
+                    <h2>Gokuldham</h2>
+                    <p>Cooperative Housing</p>
+                </div>
+                <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close Menu">&times;</button>
             </div>
 
             <!-- Logged In User Profile -->

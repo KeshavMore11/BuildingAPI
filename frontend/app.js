@@ -133,6 +133,16 @@ function switchPortalTab(tab) {
     state.activeTab = tab;
     localStorage.setItem('gokuldham_activeTab', tab);
     
+    // Close mobile side drawer on tab selection
+    const sidebar = document.getElementById('sidebarMenu');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+    }
+    if (overlay && overlay.classList.contains('active')) {
+        overlay.classList.remove('active');
+    }
+    
     // Update sidebar layout selection
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
@@ -902,6 +912,32 @@ document.getElementById('resetApiConfig').addEventListener('click', () => {
     renderAppLayout();
 });
 
+// --- MOBILE NAVIGATION DRAWER ---
+
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const mobileMenuClose = document.getElementById('mobileMenuClose');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+const sidebarMenu = document.getElementById('sidebarMenu');
+
+function openMobileMenu() {
+    if (sidebarMenu) sidebarMenu.classList.add('open');
+    if (sidebarOverlay) sidebarOverlay.classList.add('active');
+}
+
+function closeMobileMenu() {
+    if (sidebarMenu) sidebarMenu.classList.remove('open');
+    if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+}
+
+if (mobileMenuToggle) {
+    mobileMenuToggle.addEventListener('click', openMobileMenu);
+}
+if (mobileMenuClose) {
+    mobileMenuClose.addEventListener('click', closeMobileMenu);
+}
+if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', closeMobileMenu);
+}
 
 // --- INITIALIZATION ---
 
