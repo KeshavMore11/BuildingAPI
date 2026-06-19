@@ -55,11 +55,12 @@ def get_my_complaints(current_user: dict = Depends(get_current_user)):
 @router.get(
     "",
     response_model=List[ComplaintResponse],
-    summary="View all complaints (Admin only)"
+    summary="View all complaints (All authenticated users)"
 )
-def get_all_complaints(current_user: dict = Depends(RoleChecker(["admin"]))):
+def get_all_complaints(current_user: dict = Depends(get_current_user)):
     """
-    Retrieves all complaints in the society. Restricted to Secretary/Admin roles.
+    Retrieves all complaints in the society.
+    Accessible to all logged-in members (read-only). Write operations remain admin-only.
     """
     return ComplaintService.get_all_complaints()
 
