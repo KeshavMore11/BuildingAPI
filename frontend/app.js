@@ -1,6 +1,6 @@
 // Global Application State
 const state = {
-    apiUrl: localStorage.getItem('gokuldham_apiUrl') || 'https://buildingapi-ep6h.onrender.com',
+    apiUrl: localStorage.getItem('gokuldham_apiUrl') || 'http://127.0.0.1:8000',
     token: localStorage.getItem('gokuldham_token') || null,
     user: JSON.parse(localStorage.getItem('gokuldham_user')) || null,
     activeTab: localStorage.getItem('gokuldham_activeTab') || null,
@@ -159,6 +159,8 @@ function switchPortalTab(tab) {
     // Dispatch data fetches depending on active section
     if (tab === 'my-complaints') {
         loadMyComplaints();
+    } else if (tab === 'all-complaints') {
+        loadAllComplaints();
     } else if (tab === 'proposals') {
         loadProposals();
     } else if (tab === 'admin-overview') {
@@ -206,7 +208,7 @@ async function renderAppLayout() {
     let defaultTab = isAdmin ? 'admin-overview' : 'my-complaints';
     if (state.activeTab && (
         (isAdmin && ['admin-overview', 'admin-complaints', 'admin-proposals', 'admin-technicians'].includes(state.activeTab)) ||
-        (!isAdmin && ['my-complaints', 'file-complaint', 'proposals', 'submit-proposal'].includes(state.activeTab))
+        (!isAdmin && ['my-complaints', 'file-complaint', 'all-complaints', 'proposals', 'submit-proposal'].includes(state.activeTab))
     )) {
         defaultTab = state.activeTab;
     }
@@ -336,6 +338,43 @@ async function loadMyComplaints() {
                 <div class="empty-state" style="grid-column: 1/-1;">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4m16 0a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 012-2" /></svg>
                     <p>No complaints reported. Gokuldham is clean and safe!</p>
+                </div>`;
+            return;
+        }
+        
+        listContainer.innerHTML = complaints.map(complaint => {
+            const statusClass = complaint.status.toLowerCase().replace(" ", "");
+            const imageTag = complaint.image_url ? `<img class="item-image" src="${complaint.image_url}" alt="${complaint.title}">` : '';
+            return `
+                <div class="item-card">
+                    <span class="item-badge badge-${statusClass}">${complaint.status}</span>
+                    ${imageTag}
+                    <h3>${complaint.title}</h3>
+                    <p class="description">${complaint.description}</p>
+                    <div class="item-meta">
+                        <span>Reported: ${formatDate(complaint.created_at)}</span>
+                        <span>Staff: ${complaint.assigned_technician ? 'Allocated' : 'Pending'}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        listContainer.innerHTML = `<div class="empty-state" style="grid-column: 1/-1; color: var(--danger);"><p>Error: ${err.message}</p></div>`;
+    }
+}
+
+// Load all society complaints (read-only view for all members)
+async function loadAllComplaints() {
+    const listContainer = document.getElementById('allComplaintsList');
+    listContainer.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Fetching society complaints...</p></div>';
+    
+    try {
+        const complaints = await apiCall('/complaints');
+        if (complaints.length === 0) {
+            listContainer.innerHTML = `
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <p>No complaints have been filed in the society yet.</p>
                 </div>`;
             return;
         }
@@ -847,7 +886,7 @@ document.getElementById('saveApiConfig').addEventListener('click', () => {
 });
 
 document.getElementById('resetApiConfig').addEventListener('click', () => {
-    const def = 'https://buildingapi-ep6h.onrender.com';
+    const def = 'http://127.0.0.1:8000';
     document.getElementById('apiUrlInput').value = def;
     state.apiUrl = def;
     localStorage.setItem('gokuldham_apiUrl', def);
