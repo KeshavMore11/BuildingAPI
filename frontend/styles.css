@@ -890,32 +890,6 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Responsive Overrides */
 @media (max-width: 992px) {
-    .sidebar {
-        width: 80px;
-        padding: 16px 8px;
-    }
-    
-    .logo-text, .user-profile-badge, .nav-link span, .sidebar-footer button span {
-        display: none;
-    }
-    
-    .logo-section {
-        justify-content: center;
-        margin-bottom: 24px;
-    }
-    
-    .nav-link {
-        justify-content: center;
-        padding: 12px;
-    }
-    
-    .main-content {
-        margin-left: 80px;
-        padding: 24px;
-    }
-}
-
-@media (max-width: 768px) {
     .mobile-header {
         display: flex;
         align-items: center;
@@ -1020,6 +994,7 @@ h1, h2, h3, h4, h5, h6 {
         flex-direction: column;
         justify-content: flex-start;
         align-items: stretch;
+        background-color: var(--card-bg) !important;
     }
     
     .sidebar.open {
