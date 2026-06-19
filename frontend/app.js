@@ -1,6 +1,6 @@
 // Global Application State
 const state = {
-    apiUrl: localStorage.getItem('gokuldham_apiUrl') || 'http://127.0.0.1:8000',
+    apiUrl: localStorage.getItem('gokuldham_apiUrl') || 'https://buildingapi-ep6h.onrender.com',
     token: localStorage.getItem('gokuldham_token') || null,
     user: JSON.parse(localStorage.getItem('gokuldham_user')) || null,
     activeTab: localStorage.getItem('gokuldham_activeTab') || null,
@@ -886,7 +886,7 @@ document.getElementById('saveApiConfig').addEventListener('click', () => {
 });
 
 document.getElementById('resetApiConfig').addEventListener('click', () => {
-    const def = 'http://127.0.0.1:8000';
+    const def = 'https://buildingapi-ep6h.onrender.com';
     document.getElementById('apiUrlInput').value = def;
     state.apiUrl = def;
     localStorage.setItem('gokuldham_apiUrl', def);
