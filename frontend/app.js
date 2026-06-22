@@ -323,7 +323,7 @@ async function loadMyComplaints() {
             listContainer.innerHTML = `
                 <div class="empty-state" style="grid-column: 1/-1;">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4m16 0a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 012-2" /></svg>
-                    <p>No complaints reported. Gokuldham is clean and safe!</p>
+                    <p>No complaints reported by you</p>
                 </div>`;
             return;
         }
