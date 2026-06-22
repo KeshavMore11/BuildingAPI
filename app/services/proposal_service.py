@@ -75,7 +75,7 @@ class ProposalService:
         Retrieves all proposals.
         """
         try:
-            response = supabase.table("proposals").select("*").order("created_at", desc=True).execute()
+            response = supabase.table("proposals").select("*, users(name, email)").order("created_at", desc=True).execute()
             return response.data or []
         except Exception as e:
             raise HTTPException(

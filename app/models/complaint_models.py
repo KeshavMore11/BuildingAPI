@@ -27,6 +27,10 @@ class ComplaintAssign(BaseModel):
 class ComplaintStatusUpdate(BaseModel):
     status: str = Field(..., pattern="^(Pending|In Progress|Completed|Rejected)$", description="New status value")
 
+class UserProfileResponse(BaseModel):
+    name: str
+    email: str
+
 class ComplaintResponse(BaseModel):
     id: UUID
     user_id: UUID
@@ -36,6 +40,7 @@ class ComplaintResponse(BaseModel):
     status: str
     assigned_technician: Optional[UUID] = None
     created_at: datetime
+    users: Optional[UserProfileResponse] = None
 
     class Config:
         from_attributes = True

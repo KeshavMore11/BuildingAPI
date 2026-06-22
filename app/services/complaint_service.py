@@ -76,7 +76,7 @@ class ComplaintService:
         Fetches all complaints (admin-only).
         """
         try:
-            response = supabase.table("complaints").select("*").order("created_at", desc=True).execute()
+            response = supabase.table("complaints").select("*, users(name, email)").order("created_at", desc=True).execute()
             return response.data or []
         except Exception as e:
             raise HTTPException(

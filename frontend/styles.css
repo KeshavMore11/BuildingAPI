@@ -1187,3 +1187,43 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
+/* Submitter Badges (Proposed by / Filed by) */
+.item-owner-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 30px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: var(--transition);
+    align-self: flex-start;
+}
+
+.item-owner-badge.badge-other {
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.02);
+}
+
+.item-owner-badge.badge-other:hover {
+    background-color: rgba(37, 99, 235, 0.12);
+    transform: translateY(-1px);
+}
+
+.item-owner-badge.badge-own {
+    background-color: var(--warning-bg);
+    color: var(--warning);
+    border: 1px solid rgba(217, 119, 6, 0.15);
+    box-shadow: 0 2px 4px rgba(217, 119, 6, 0.02);
+}
+
+.item-owner-badge.badge-own:hover {
+    background-color: rgba(217, 119, 6, 0.12);
+    transform: translateY(-1px);
+}
+

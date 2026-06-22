@@ -364,10 +364,11 @@ async function loadAllComplaints() {
         listContainer.innerHTML = complaints.map(complaint => {
             const statusClass = complaint.status.toLowerCase().replace(" ", "");
             const imageTag = complaint.image_url ? `<img class="item-image" src="${complaint.image_url}" alt="${complaint.title}">` : '';
+            const filerName = complaint.users ? complaint.users.name : 'Society Member';
             const isOwn = currentUserId && complaint.user_id === currentUserId;
             const ownerTag = isOwn
-                ? `<span style="display:inline-block; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:20px; background:var(--primary-light,rgba(99,102,241,0.12)); color:var(--primary,#6366f1); margin-bottom:6px;">📌 Your Complaint</span>`
-                : `<span style="display:inline-block; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:20px; background:var(--border-color,rgba(0,0,0,0.06)); color:var(--text-muted,#888); margin-bottom:6px;">👥 Society Member</span>`;
+                ? `<span class="item-owner-badge badge-own">📌 Your Complaint</span>`
+                : `<span class="item-owner-badge badge-other">👥 Filed by: ${filerName}</span>`;
             return `
                 <div class="item-card">
                     <span class="item-badge badge-${statusClass}">${complaint.status}</span>
@@ -442,6 +443,13 @@ async function loadProposals() {
             const statusClass = proposal.status.toLowerCase();
             const imageTag = proposal.image_url ? `<img class="item-image" src="${proposal.image_url}" alt="${proposal.title}">` : '';
             
+            const proposerName = proposal.users ? proposal.users.name : 'Society Member';
+            const currentUserId = state.user ? state.user.id : null;
+            const isOwn = currentUserId && proposal.user_id === currentUserId;
+            const ownerTag = isOwn
+                ? `<span class="item-owner-badge badge-own">📌 Your Proposal</span>`
+                : `<span class="item-owner-badge badge-other">👥 Proposed by: ${proposerName}</span>`;
+            
             let pollHtml = '';
             if (proposal.poll_enabled) {
                 pollHtml = `
@@ -465,6 +473,7 @@ async function loadProposals() {
             return `
                 <div class="item-card">
                     <span class="item-badge badge-${statusClass}">${proposal.status}</span>
+                    ${ownerTag}
                     ${imageTag}
                     <h3>${proposal.title}</h3>
                     <p class="description">${proposal.description}</p>
@@ -627,7 +636,7 @@ async function loadAdminComplaints() {
                     </div>
 
                     <div class="item-meta">
-                        <span>Filer: ${complaint.user_id.slice(0,8)}...</span>
+                        <span>Filer: ${complaint.users ? complaint.users.name : complaint.user_id.slice(0,8)}</span>
                         <span>Date: ${formatDate(complaint.created_at)}</span>
                     </div>
                 </div>
@@ -717,7 +726,7 @@ async function loadAdminProposals() {
                     ${pollHtml}
                     ${actionHtml}
                     <div class="item-meta">
-                        <span>Filer: ${proposal.user_id.slice(0,8)}...</span>
+                        <span>Filer: ${proposal.users ? proposal.users.name : proposal.user_id.slice(0,8)}</span>
                         <span>Date: ${formatDate(proposal.created_at)}</span>
                     </div>
                 </div>

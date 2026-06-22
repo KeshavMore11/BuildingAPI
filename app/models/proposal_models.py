@@ -11,6 +11,10 @@ class ProposalCreate(BaseModel):
 class ProposalStatusUpdate(BaseModel):
     status: str = Field(..., pattern="^(Pending|Approved|Rejected)$", description="New proposal status")
 
+class UserProfileResponse(BaseModel):
+    name: str
+    email: str
+
 class ProposalResponse(BaseModel):
     id: UUID
     user_id: UUID
@@ -20,6 +24,7 @@ class ProposalResponse(BaseModel):
     poll_enabled: bool
     status: str
     created_at: datetime
+    users: Optional[UserProfileResponse] = None
 
     class Config:
         from_attributes = True
