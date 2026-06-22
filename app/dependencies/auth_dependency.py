@@ -27,19 +27,27 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    try:
-        response = supabase.table("users").select("*").eq("id", user_id).execute()
-        if not response.data or len(response.data) == 0:
+    import time
+    max_retries = 3
+    delay = 0.1
+    for attempt in range(max_retries):
+        try:
+            response = supabase.table("users").select("*").eq("id", user_id).execute()
+            if not response.data or len(response.data) == 0:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="User account no longer exists",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            return response.data[0]
+        except HTTPException:
+            raise
+        except Exception as e:
+            if "Resource temporarily unavailable" in str(e) or "Errno 11" in str(e):
+                if attempt < max_retries - 1:
+                    time.sleep(delay * (2 ** attempt))
+                    continue
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User account no longer exists",
-                headers={"WWW-Authenticate": "Bearer"},
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Database authentication error: {str(e)}"
             )
-        return response.data[0]
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Database authentication error: {str(e)}"
-        )

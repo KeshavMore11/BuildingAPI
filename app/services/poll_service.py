@@ -7,21 +7,29 @@ class PollService:
         """
         Helper method to retrieve the poll record for a given proposal.
         """
-        try:
-            response = supabase.table("polls").select("*").eq("proposal_id", proposal_id).execute()
-            if not response.data or len(response.data) == 0:
+        import time
+        max_retries = 3
+        delay = 0.1
+        for attempt in range(max_retries):
+            try:
+                response = supabase.table("polls").select("*").eq("proposal_id", proposal_id).execute()
+                if not response.data or len(response.data) == 0:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="No active poll exists for this proposal"
+                    )
+                return response.data[0]
+            except HTTPException:
+                raise
+            except Exception as e:
+                if "Resource temporarily unavailable" in str(e) or "Errno 11" in str(e):
+                    if attempt < max_retries - 1:
+                        time.sleep(delay * (2 ** attempt))
+                        continue
                 raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="No active poll exists for this proposal"
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Database error fetching poll details: {str(e)}"
                 )
-            return response.data[0]
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Database error fetching poll details: {str(e)}"
-            )
 
     @classmethod
     def vote(cls, proposal_id: str, user_id: str, vote_value: str) -> dict:
@@ -73,23 +81,38 @@ class PollService:
         """
         Returns the aggregate results (Favor, Against, Total) of the poll.
         """
-        poll = cls.get_poll_by_proposal(proposal_id)
-        poll_id = poll["id"]
-
-        try:
-            votes_response = supabase.table("votes").select("vote").eq("poll_id", poll_id).execute()
-            votes = votes_response.data or []
-            
-            favor = sum(1 for v in votes if v["vote"] == "Favor")
-            against = sum(1 for v in votes if v["vote"] == "Against")
-            
-            return {
-                "favor": favor,
-                "against": against,
-                "total_votes": len(votes)
-            }
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Database error calculating poll results: {str(e)}"
-            )
+        import time
+        max_retries = 3
+        delay = 0.1
+        for attempt in range(max_retries):
+            try:
+                # Optimized single query joining votes in one database request
+                poll_res = supabase.table("polls").select("id, votes(vote)").eq("proposal_id", proposal_id).execute()
+                if not poll_res.data or len(poll_res.data) == 0:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="No active poll exists for this proposal"
+                    )
+                
+                poll_data = poll_res.data[0]
+                votes = poll_data.get("votes") or []
+                
+                favor = sum(1 for v in votes if v["vote"] == "Favor")
+                against = sum(1 for v in votes if v["vote"] == "Against")
+                
+                return {
+                    "favor": favor,
+                    "against": against,
+                    "total_votes": len(votes)
+                }
+            except HTTPException:
+                raise
+            except Exception as e:
+                if "Resource temporarily unavailable" in str(e) or "Errno 11" in str(e):
+                    if attempt < max_retries - 1:
+                        time.sleep(delay * (2 ** attempt))
+                        continue
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Database error calculating poll results: {str(e)}"
+                )
