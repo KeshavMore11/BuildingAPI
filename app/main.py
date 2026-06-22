@@ -18,8 +18,8 @@ app = FastAPI(
     Supabase Storage image uploads, and society proposal polling votes.
     """,
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    docs_url=None,
+    redoc_url=None
 )
 
 app.add_middleware(
