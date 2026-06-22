@@ -1,4 +1,3 @@
-// Global Application State
 const state = {
     apiUrl: localStorage.getItem('gokuldham_apiUrl') || 'https://buildingapi-ep6h.onrender.com',
     token: localStorage.getItem('gokuldham_token') || null,
@@ -7,9 +6,7 @@ const state = {
     technicians: []
 };
 
-// --- UTILITIES & HELPERS ---
 
-// Base64 JWT Decoder
 function decodeJwt(token) {
     try {
         const base64Url = token.split('.')[1];
@@ -24,7 +21,6 @@ function decodeJwt(token) {
     }
 }
 
-// Show Custom Toast Alert
 function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
@@ -35,7 +31,6 @@ function showToast(message, type = 'info') {
     `;
     container.appendChild(toast);
     
-    // Auto dismiss
     setTimeout(() => {
         toast.classList.add('slide-out');
         setTimeout(() => {
@@ -44,7 +39,6 @@ function showToast(message, type = 'info') {
     }, 4500);
 }
 
-// Generic API Call Wrapper
 async function apiCall(endpoint, options = {}) {
     const url = `${state.apiUrl}${endpoint}`;
     const headers = options.headers || {};
@@ -53,7 +47,6 @@ async function apiCall(endpoint, options = {}) {
         headers['Authorization'] = `Bearer ${state.token}`;
     }
     
-    // Setup JSON Content-Type if payload is plain object
     if (options.body && !(options.body instanceof FormData)) {
         headers['Content-Type'] = 'application/json';
         options.body = JSON.stringify(options.body);
@@ -90,7 +83,6 @@ async function apiCall(endpoint, options = {}) {
     }
 }
 
-// Image upload preview helper
 function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
     const container = document.getElementById(`${previewId}Container`);
@@ -107,7 +99,6 @@ function previewImage(input, previewId) {
     }
 }
 
-// Date formatter
 function formatDate(dateString) {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -120,7 +111,6 @@ function formatDate(dateString) {
     });
 }
 
-// --- VIEW NAVIGATION & ROUTING ---
 
 function switchAuthTab(tab) {
     document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
@@ -133,7 +123,6 @@ function switchPortalTab(tab) {
     state.activeTab = tab;
     localStorage.setItem('gokuldham_activeTab', tab);
     
-    // Close mobile side drawer on tab selection
     const sidebar = document.getElementById('sidebarMenu');
     const overlay = document.getElementById('sidebarOverlay');
     if (sidebar && sidebar.classList.contains('open')) {
@@ -143,18 +132,15 @@ function switchPortalTab(tab) {
         overlay.classList.remove('active');
     }
     
-    // Update sidebar layout selection
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
     });
     
-    // Find matching link
     const targetLink = Array.from(document.querySelectorAll('.nav-link')).find(link => 
         link.getAttribute('onclick') && link.getAttribute('onclick').includes(tab)
     );
     if (targetLink) targetLink.classList.add('active');
     
-    // Update viewport sections
     document.querySelectorAll('.view-section').forEach(view => {
         view.classList.remove('active');
     });
@@ -166,7 +152,6 @@ function switchPortalTab(tab) {
         console.error(`View container 'view-${tab}' not found`);
     }
     
-    // Dispatch data fetches depending on active section
     if (tab === 'my-complaints') {
         loadMyComplaints();
     } else if (tab === 'all-complaints') {
@@ -184,28 +169,25 @@ function switchPortalTab(tab) {
     }
 }
 
-// Renders the workspace and updates navigation depending on role
 async function renderAppLayout() {
     if (!state.token || !state.user) {
-        // Show auth, hide workspace
         document.getElementById('authView').classList.add('active');
         document.getElementById('appWorkspace').classList.remove('active');
         return;
     }
     
-    // Hide auth, show workspace
     document.getElementById('authView').classList.remove('active');
     document.getElementById('appWorkspace').classList.add('active');
     
-    // Set up badge labels
-    document.getElementById('userNameBadge').innerText = state.user.name || state.user.email;
+    const displayName = state.user.name || state.user.email || 'User';
+    document.getElementById('userNameBadge').innerText = displayName;
     document.getElementById('userRoleBadge').innerText = state.user.role === 'admin' ? 'Secretary' : 'Member';
+    document.getElementById('userAvatarBadge').innerText = displayName.charAt(0).toUpperCase();
     
     const isAdmin = state.user.role === 'admin';
     document.getElementById('memberNav').style.display = isAdmin ? 'none' : 'flex';
     document.getElementById('adminNav').style.display = isAdmin ? 'flex' : 'none';
     
-    // Cache technicians if Admin
     if (isAdmin) {
         try {
             state.technicians = await apiCall('/technicians');
@@ -214,7 +196,6 @@ async function renderAppLayout() {
         }
     }
     
-    // Switch to last active tab or fallback
     let defaultTab = isAdmin ? 'admin-overview' : 'my-complaints';
     if (state.activeTab && (
         (isAdmin && ['admin-overview', 'admin-complaints', 'admin-proposals', 'admin-technicians'].includes(state.activeTab)) ||
@@ -226,9 +207,7 @@ async function renderAppLayout() {
     switchPortalTab(defaultTab);
 }
 
-// --- AUTHENTICATION FLOWS ---
 
-// Login Handle
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
@@ -248,10 +227,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         state.token = response.access_token;
         localStorage.setItem('gokuldham_token', response.access_token);
         
-        // Decode Token and retrieve User details
         const decoded = decodeJwt(response.access_token);
         
-        // Call /auth/me to fetch user full profile
         let userProfile;
         try {
             userProfile = await apiCall('/auth/me');
@@ -274,7 +251,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         showToast(`Welcome back to Gokuldham, ${userProfile.name}!`, "success");
         await renderAppLayout();
         
-        // Reset inputs
         e.target.reset();
     } catch (err) {
         showToast(err.message, "error");
@@ -284,13 +260,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 });
 
-// Registration Handle
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('registerName').value.trim();
     const email = document.getElementById('registerEmail').value.trim();
     const password = document.getElementById('registerPassword').value;
-    const role = 'member'; // Hardcoded fallback to member role
+    const role = 'member'; 
     
     const submitBtn = e.target.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerText;
@@ -306,7 +281,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         showToast("Registration successful! Please login with your credentials.", "success");
         switchAuthTab('login');
         
-        // Prefill login email
         document.getElementById('loginEmail').value = email;
         e.target.reset();
     } catch (err) {
@@ -317,7 +291,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     }
 });
 
-// Logout Handle
 function logout() {
     state.token = null;
     state.user = null;
@@ -334,9 +307,7 @@ function logout() {
 document.getElementById('logoutBtn').addEventListener('click', logout);
 
 
-// --- MEMBER WORKFLOW LOADER & ACTIONS ---
 
-// Load member's complaints
 async function loadMyComplaints() {
     const listContainer = document.getElementById('myComplaintsList');
     listContainer.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Fetching complaints...</p></div>';
@@ -373,7 +344,6 @@ async function loadMyComplaints() {
     }
 }
 
-// Load all society complaints (read-only for members)
 async function loadAllComplaints() {
     const listContainer = document.getElementById('allComplaintsList');
     listContainer.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Fetching society complaints...</p></div>';
@@ -417,7 +387,6 @@ async function loadAllComplaints() {
     }
 }
 
-// File new complaint
 document.getElementById('newComplaintForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const title = document.getElementById('complaintTitle').value.trim();
@@ -454,7 +423,6 @@ document.getElementById('newComplaintForm').addEventListener('submit', async (e)
     }
 });
 
-// Load proposals and their polling details
 async function loadProposals() {
     const listContainer = document.getElementById('proposalsList');
     listContainer.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Fetching proposals...</p></div>';
@@ -509,7 +477,6 @@ async function loadProposals() {
             `;
         }).join('');
         
-        // Post-render: Fetch results for active polls asynchronously
         proposals.forEach(proposal => {
             if (proposal.poll_enabled) {
                 updatePollResultsUI(proposal.id);
@@ -521,7 +488,6 @@ async function loadProposals() {
     }
 }
 
-// Update voting percentages on UI
 async function updatePollResultsUI(proposalId) {
     const pollContainer = document.getElementById(`poll-${proposalId}`);
     if (!pollContainer) return;
@@ -545,7 +511,6 @@ async function updatePollResultsUI(proposalId) {
     }
 }
 
-// Cast user vote on poll
 async function castVote(proposalId, voteValue) {
     try {
         await apiCall(`/polls/${proposalId}/vote`, {
@@ -560,7 +525,6 @@ async function castVote(proposalId, voteValue) {
     }
 }
 
-// Submit a new proposal
 document.getElementById('newProposalForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const title = document.getElementById('proposalTitle').value.trim();
@@ -600,9 +564,7 @@ document.getElementById('newProposalForm').addEventListener('submit', async (e) 
 });
 
 
-// --- ADMIN PORTAL WORKFLOW LOADER & ACTIONS ---
 
-// Fetch aggregate statistics
 async function loadAdminOverview() {
     try {
         const stats = await apiCall('/dashboard/stats');
@@ -616,7 +578,6 @@ async function loadAdminOverview() {
     }
 }
 
-// Fetch complaints for Admin dashboard
 async function loadAdminComplaints() {
     const listContainer = document.getElementById('adminComplaintsList');
     listContainer.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Loading society complaints...</p></div>';
@@ -632,7 +593,6 @@ async function loadAdminComplaints() {
             const statusClass = complaint.status.toLowerCase().replace(" ", "");
             const imageTag = complaint.image_url ? `<img class="item-image" src="${complaint.image_url}" alt="${complaint.title}">` : '';
             
-            // Build technician options
             const techOptions = state.technicians.map(tech => 
                 `<option value="${tech.id}" ${complaint.assigned_technician === tech.id ? 'selected' : ''}>${tech.name} (${tech.craft})</option>`
             ).join('');
@@ -678,7 +638,6 @@ async function loadAdminComplaints() {
     }
 }
 
-// Action: Assign Technician
 async function adminAssignTechnician(complaintId, technicianId) {
     try {
         const payload = {
@@ -695,7 +654,6 @@ async function adminAssignTechnician(complaintId, technicianId) {
     }
 }
 
-// Action: Update status of complaint
 async function adminUpdateStatus(complaintId, newStatus) {
     try {
         await apiCall(`/complaints/${complaintId}/status`, {
@@ -709,7 +667,6 @@ async function adminUpdateStatus(complaintId, newStatus) {
     }
 }
 
-// Fetch all proposals for Admin
 async function loadAdminProposals() {
     const listContainer = document.getElementById('adminProposalsList');
     listContainer.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Loading society proposals...</p></div>';
@@ -767,7 +724,6 @@ async function loadAdminProposals() {
             `;
         }).join('');
         
-        // Post render: Load results
         proposals.forEach(proposal => {
             if (proposal.poll_enabled) {
                 updateAdminPollResultsUI(proposal.id);
@@ -778,7 +734,6 @@ async function loadAdminProposals() {
     }
 }
 
-// Update Admin Poll results
 async function updateAdminPollResultsUI(proposalId) {
     const pollContainer = document.getElementById(`poll-admin-${proposalId}`);
     if (!pollContainer) return;
@@ -802,7 +757,6 @@ async function updateAdminPollResultsUI(proposalId) {
     }
 }
 
-// Action: Approve or Reject a proposal
 async function adminUpdateProposalStatus(proposalId, newStatus) {
     try {
         await apiCall(`/proposals/${proposalId}/status`, {
@@ -816,14 +770,13 @@ async function adminUpdateProposalStatus(proposalId, newStatus) {
     }
 }
 
-// Load registered service technicians
 async function loadAdminTechnicians() {
     const listContainer = document.getElementById('techniciansList');
     listContainer.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Loading technicians...</p></div>';
     
     try {
         const technicians = await apiCall('/technicians');
-        state.technicians = technicians; // Refresh cache
+        state.technicians = technicians; 
         
         if (technicians.length === 0) {
             listContainer.innerHTML = '<p class="empty-state">No technicians registered.</p>';
@@ -844,7 +797,6 @@ async function loadAdminTechnicians() {
     }
 }
 
-// Form: Register New Technician
 document.getElementById('newTechnicianForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('techName').value.trim();
@@ -874,45 +826,8 @@ document.getElementById('newTechnicianForm').addEventListener('submit', async (e
 });
 
 
-// --- SYSTEM SETTINGS (API CONFIGURATION) ---
 
-const apiConfigModal = document.getElementById('apiConfigModal');
 
-function openApiConfigModal() {
-    document.getElementById('apiUrlInput').value = state.apiUrl;
-    apiConfigModal.classList.add('active');
-}
-
-function closeApiConfigModal() {
-    apiConfigModal.classList.remove('active');
-}
-
-document.getElementById('openApiSettingsBtn').addEventListener('click', openApiConfigModal);
-document.getElementById('closeApiConfig').addEventListener('click', closeApiConfigModal);
-document.getElementById('saveApiConfig').addEventListener('click', () => {
-    const val = document.getElementById('apiUrlInput').value.trim();
-    if (val) {
-        state.apiUrl = val;
-        localStorage.setItem('gokuldham_apiUrl', val);
-        showToast(`API base path saved: ${val}`, "success");
-        closeApiConfigModal();
-        renderAppLayout();
-    } else {
-        showToast("Please enter a valid API URL", "warning");
-    }
-});
-
-document.getElementById('resetApiConfig').addEventListener('click', () => {
-    const def = 'https://buildingapi-ep6h.onrender.com';
-    document.getElementById('apiUrlInput').value = def;
-    state.apiUrl = def;
-    localStorage.setItem('gokuldham_apiUrl', def);
-    showToast(`API URL reset to default: ${def}`, "info");
-    closeApiConfigModal();
-    renderAppLayout();
-});
-
-// --- MOBILE NAVIGATION DRAWER ---
 
 const mobileMenuToggle = document.getElementById('mobileMenuToggle');
 const mobileMenuClose = document.getElementById('mobileMenuClose');
@@ -939,12 +854,9 @@ if (sidebarOverlay) {
     sidebarOverlay.addEventListener('click', closeMobileMenu);
 }
 
-// --- INITIALIZATION ---
 
 window.addEventListener('DOMContentLoaded', () => {
-    // Check if there is an active session
     if (state.token) {
-        // Double check session validity with auth/me
         apiCall('/auth/me')
             .then(profile => {
                 state.user = profile;

@@ -21,7 +21,6 @@ class ProposalService:
         
         if image_content and image_name:
             try:
-                # Upload proposal illustration
                 image_url = upload_image_to_supabase(
                     file_content=image_content,
                     file_name=image_name,
@@ -43,7 +42,6 @@ class ProposalService:
         }
 
         try:
-            # 1. Insert proposal
             response = supabase.table("proposals").insert(proposal_data).execute()
             if not response.data or len(response.data) == 0:
                 raise HTTPException(
@@ -53,11 +51,9 @@ class ProposalService:
             proposal = response.data[0]
             proposal_id = proposal["id"]
 
-            # 2. If poll_enabled is True, automatically initialize a poll
             if poll_enabled:
                 poll_response = supabase.table("polls").insert({"proposal_id": proposal_id}).execute()
                 if not poll_response.data or len(poll_response.data) == 0:
-                    # Roll back proposal if poll creation fails (by deleting the proposal)
                     supabase.table("proposals").delete().eq("id", proposal_id).execute()
                     raise HTTPException(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -114,7 +110,6 @@ class ProposalService:
         Updates the status of a proposal (Approved/Rejected/Pending) - admin only.
         """
         try:
-            # Check if proposal exists
             proposal_check = supabase.table("proposals").select("id").eq("id", proposal_id).execute()
             if not proposal_check.data or len(proposal_check.data) == 0:
                 raise HTTPException(

@@ -28,11 +28,9 @@ class PollService:
         """
         Allows a user to cast a single vote on a proposal's poll.
         """
-        # 1. Retrieve the poll
         poll = cls.get_poll_by_proposal(proposal_id)
         poll_id = poll["id"]
 
-        # 2. Check if the user has already voted on this poll
         try:
             vote_check = supabase.table("votes").select("id").eq("poll_id", poll_id).eq("user_id", user_id).execute()
             if vote_check.data and len(vote_check.data) > 0:
@@ -48,7 +46,6 @@ class PollService:
                 detail=f"Database error during vote verification: {str(e)}"
             )
 
-        # 3. Cast the vote
         vote_data = {
             "poll_id": poll_id,
             "user_id": user_id,
@@ -76,11 +73,9 @@ class PollService:
         """
         Returns the aggregate results (Favor, Against, Total) of the poll.
         """
-        # 1. Retrieve the poll
         poll = cls.get_poll_by_proposal(proposal_id)
         poll_id = poll["id"]
 
-        # 2. Get all votes for this poll
         try:
             votes_response = supabase.table("votes").select("vote").eq("poll_id", poll_id).execute()
             votes = votes_response.data or []

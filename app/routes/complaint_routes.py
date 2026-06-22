@@ -78,7 +78,6 @@ def assign_technician(
     Assigns a technician to look into the complaint. If assigned and the status was 'Pending',
     the system automatically shifts the complaint status to 'In Progress'.
     """
-    # Convert technician_id to string if present
     tech_id = str(payload.assigned_technician) if payload.assigned_technician else None
     return ComplaintService.assign_technician(complaint_id=id, technician_id=tech_id)
 

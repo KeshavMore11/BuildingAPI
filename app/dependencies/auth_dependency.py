@@ -28,7 +28,6 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         )
     
     try:
-        # Check if the user exists in the custom users table
         response = supabase.table("users").select("*").eq("id", user_id).execute()
         if not response.data or len(response.data) == 0:
             raise HTTPException(

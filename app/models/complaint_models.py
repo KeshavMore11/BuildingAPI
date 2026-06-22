@@ -3,7 +3,6 @@ from uuid import UUID
 from datetime import datetime
 from typing import Optional
 
-# Technician Models
 class TechnicianBase(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
     craft: str = Field(..., description="Craft, e.g. Plumber, Electrician, Carpenter, Lift Technician, Mason, Labor")
@@ -18,7 +17,6 @@ class TechnicianResponse(TechnicianBase):
     class Config:
         from_attributes = True
 
-# Complaint Models
 class ComplaintCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=150)
     description: str = Field(..., min_length=10, max_length=1000)

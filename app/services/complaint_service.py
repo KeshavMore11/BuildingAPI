@@ -21,7 +21,6 @@ class ComplaintService:
         
         if image_content and image_name:
             try:
-                # Upload the image and get the public URL
                 image_url = upload_image_to_supabase(
                     file_content=image_content,
                     file_name=image_name,
@@ -90,7 +89,6 @@ class ComplaintService:
         """
         Assigns a technician to a complaint.
         """
-        # If technician_id is provided, verify they exist
         if technician_id:
             try:
                 tech_check = supabase.table("technicians").select("id").eq("id", technician_id).execute()
@@ -108,7 +106,6 @@ class ComplaintService:
                 )
 
         try:
-            # Check if complaint exists
             complaint_check = supabase.table("complaints").select("id").eq("id", complaint_id).execute()
             if not complaint_check.data or len(complaint_check.data) == 0:
                 raise HTTPException(
@@ -116,10 +113,8 @@ class ComplaintService:
                     detail="Complaint not found"
                 )
             
-            # Update assigned technician and move to In Progress if status was Pending
             update_data = {"assigned_technician": technician_id}
             
-            # Optional auto transition to In Progress if it's currently Pending
             curr_complaint = supabase.table("complaints").select("status").eq("id", complaint_id).execute().data[0]
             if curr_complaint["status"] == "Pending" and technician_id is not None:
                 update_data["status"] = "In Progress"
@@ -140,7 +135,6 @@ class ComplaintService:
         Updates the status of a complaint.
         """
         try:
-            # Check if complaint exists
             complaint_check = supabase.table("complaints").select("id").eq("id", complaint_id).execute()
             if not complaint_check.data or len(complaint_check.data) == 0:
                 raise HTTPException(

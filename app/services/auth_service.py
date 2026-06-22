@@ -11,7 +11,6 @@ class AuthService:
         """
         email = user_in.email.lower().strip()
         
-        # Check if email is already registered
         try:
             check_response = supabase.table("users").select("id").eq("email", email).execute()
             if check_response.data and len(check_response.data) > 0:
@@ -27,7 +26,6 @@ class AuthService:
                 detail=f"Database error during register verification: {str(e)}"
             )
 
-        # Hash password and store user
         hashed = hash_password(user_in.password)
         user_data = {
             "name": user_in.name,
@@ -76,14 +74,12 @@ class AuthService:
                 detail=f"Database error during login fetch: {str(e)}"
             )
 
-        # Validate password
         if not verify_password(user_in.password, user["password"]):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
 
-        # Create access token payload
         token_payload = {
             "id": user["id"],
             "email": user["email"],

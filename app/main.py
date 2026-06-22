@@ -21,7 +21,6 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Configure CORS Middleware to allow requests from any frontend origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,14 +29,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register routers
 app.include_router(auth_router)
 app.include_router(complaint_router)
 app.include_router(proposal_router)
 app.include_router(poll_router)
 app.include_router(admin_router)
 
-# Mount the static frontend directory to serve the Gokuldham Portal UI
 app.mount("/portal", StaticFiles(directory="frontend", html=True), name="frontend")
 
 @app.get("/", include_in_schema=False)

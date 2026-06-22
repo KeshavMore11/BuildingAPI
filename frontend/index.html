@@ -9,40 +9,17 @@
 </head>
 <body>
 
-    <!-- Toast Notifications Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- API CONFIG MODAL -->
-    <div class="modal" id="apiConfigModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">API Connection Settings</h3>
-                <button class="modal-close" id="closeApiConfig">&times;</button>
-            </div>
-            <div class="form-group">
-                <label for="apiUrlInput">Backend API URL</label>
-                <input type="text" class="form-control" id="apiUrlInput" placeholder="https://buildingapi-ep6h.onrender.com">
-                <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 6px; display: block;">
-                    Specify the backend FastAPI server URL. Defaults to the Render production build.
-                </small>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
-                <button class="btn btn-secondary" id="resetApiConfig">Reset Default</button>
-                <button class="btn btn-primary" id="saveApiConfig">Save Changes</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- 1. AUTHENTICATION VIEW (Default) -->
+
     <div class="auth-page view-section active" id="authView">
         <div class="auth-card">
             <div class="auth-header">
                 <div class="auth-logo">G</div>
                 <h1>Gokuldham Society</h1>
                 <p>Resident & Admin Service Portal</p>
-                <button class="btn-link" id="openApiSettingsBtn" style="font-size: 0.8rem; margin-top: 10px;">
-                    ⚙️ Configure API Connection
-                </button>
+
             </div>
 
             <div class="auth-tabs">
@@ -50,7 +27,6 @@
                 <div class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">Register</div>
             </div>
 
-            <!-- Login Form -->
             <form id="loginForm">
                 <div class="form-group">
                     <label for="loginEmail">Email Address</label>
@@ -65,7 +41,6 @@
                 </button>
             </form>
 
-            <!-- Register Form -->
             <form id="registerForm" style="display: none;">
                 <div class="form-group">
                     <label for="registerName">Full Name</label>
@@ -86,10 +61,8 @@
         </div>
     </div>
 
-    <!-- 2. MAIN APPLICATION WORKSPACE -->
     <div class="app-container" id="appWorkspace">
         
-        <!-- Mobile Header Bar -->
         <header class="mobile-header">
             <div class="logo-section">
                 <div class="logo-icon">G</div>
@@ -105,10 +78,8 @@
             </button>
         </header>
 
-        <!-- Sidebar Overlay backdrop -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <!-- Sidebar Navigation -->
         <aside class="sidebar" id="sidebarMenu">
             <div class="logo-section">
                 <div class="logo-icon">G</div>
@@ -119,15 +90,15 @@
                 <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close Menu">&times;</button>
             </div>
 
-            <!-- Logged In User Profile -->
             <div class="user-profile-badge">
-                <div class="user-name" id="userNameBadge">Loading User...</div>
-                <div class="user-role" id="userRoleBadge">Member</div>
+                <div class="user-avatar" id="userAvatarBadge">U</div>
+                <div class="user-info">
+                    <div class="user-name" id="userNameBadge">Loading User...</div>
+                    <div class="user-role" id="userRoleBadge">Member</div>
+                </div>
             </div>
 
-            <!-- Dynamic Navigation Links -->
             <nav style="flex-grow: 1;">
-                <!-- Member Navigation Links -->
                 <ul class="nav-links" id="memberNav">
                     <li class="nav-link active" onclick="switchPortalTab('my-complaints')">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -161,7 +132,6 @@
                     </li>
                 </ul>
 
-                <!-- Admin Navigation Links -->
                 <ul class="nav-links" id="adminNav" style="display: none;">
                     <li class="nav-link active" onclick="switchPortalTab('admin-overview')">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -191,11 +161,8 @@
                 </ul>
             </nav>
 
-            <!-- Sidebar Footer Config & Logout -->
             <div class="sidebar-footer">
-                <button class="btn btn-secondary" onclick="openApiConfigModal()" style="padding: 8px 12px; font-size: 0.8rem;">
-                    ⚙️ API Config
-                </button>
+
                 <button class="btn btn-danger" id="logoutBtn" style="padding: 10px 16px;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px; vertical-align: middle;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -205,12 +172,9 @@
             </div>
         </aside>
 
-        <!-- Main Workspace Area -->
         <main class="main-content">
 
-            <!-- ============ MEMBER PORTAL VIEWS ============ -->
 
-            <!-- View: My Complaints -->
             <section class="view-section active" id="view-my-complaints">
                 <div class="page-header">
                     <div class="page-title">
@@ -220,11 +184,9 @@
                     <button class="btn btn-primary" onclick="switchPortalTab('file-complaint')">+ Report New Issue</button>
                 </div>
                 <div id="myComplaintsList" class="cards-grid">
-                    <!-- Dynamic List of Complaints -->
                 </div>
             </section>
 
-            <!-- View: All Society Complaints (Read-Only for Members) -->
             <section class="view-section" id="view-all-complaints">
                 <div class="page-header">
                     <div class="page-title">
@@ -232,7 +194,6 @@
                         <p>All maintenance issues raised by Gokuldham residents &mdash; view only</p>
                     </div>
                 </div>
-                <!-- Read-only notice banner -->
                 <div style="display:flex; align-items:center; gap:10px; background:var(--info-bg,rgba(59,130,246,0.08)); border:1px solid var(--info,#3b82f6); border-radius:var(--radius-sm,8px); padding:12px 16px; margin-bottom:20px; color:var(--info,#3b82f6); font-size:0.875rem;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:18px;height:18px;flex-shrink:0;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -240,11 +201,9 @@
                     <span>You are viewing all society complaints in <strong>read-only</strong> mode. Only the Secretary (admin) can update or manage these complaints.</span>
                 </div>
                 <div id="allComplaintsList" class="cards-grid">
-                    <!-- Dynamic List of All Complaints (read-only) -->
                 </div>
             </section>
 
-            <!-- View: File Complaint -->
             <section class="view-section" id="view-file-complaint">
                 <div class="page-header">
                     <div class="page-title">
@@ -253,7 +212,7 @@
                     </div>
                     <button class="btn btn-secondary" onclick="switchPortalTab('my-complaints')">Back to List</button>
                 </div>
-                <div style="background-color: var(--card-bg); padding: 32px; border-radius: var(--radius-md); border: 1px solid var(--border-color); max-width: 680px; box-shadow: var(--shadow-sm);">
+                <div class="complaint-form-card">
                     <form id="newComplaintForm">
                         <div class="form-group">
                             <label for="complaintTitle">Complaint Title / Location</label>
@@ -278,7 +237,6 @@
                 </div>
             </section>
 
-            <!-- View: Proposals & Polling -->
             <section class="view-section" id="view-proposals">
                 <div class="page-header">
                     <div class="page-title">
@@ -288,11 +246,9 @@
                     <button class="btn btn-primary" onclick="switchPortalTab('submit-proposal')">+ Submit New Proposal</button>
                 </div>
                 <div id="proposalsList" class="cards-grid">
-                    <!-- Dynamic List of Proposals -->
                 </div>
             </section>
 
-            <!-- View: Submit Proposal -->
             <section class="view-section" id="view-submit-proposal">
                 <div class="page-header">
                     <div class="page-title">
@@ -301,7 +257,7 @@
                     </div>
                     <button class="btn btn-secondary" onclick="switchPortalTab('proposals')">Back to Proposals</button>
                 </div>
-                <div style="background-color: var(--card-bg); padding: 32px; border-radius: var(--radius-md); border: 1px solid var(--border-color); max-width: 680px; box-shadow: var(--shadow-sm);">
+                <div class="proposal-form-card">
                     <form id="newProposalForm">
                         <div class="form-group">
                             <label for="proposalTitle">Upgrade/Proposal Title</label>
@@ -333,9 +289,7 @@
             </section>
 
 
-            <!-- ============ ADMIN/SECRETARY PORTAL VIEWS ============ -->
 
-            <!-- View: Admin Overview/Dashboard Stats -->
             <section class="view-section" id="view-admin-overview">
                 <div class="page-header">
                     <div class="page-title">
@@ -344,7 +298,6 @@
                     </div>
                 </div>
 
-                <!-- Stats Dashboard Grid -->
                 <div class="stats-grid">
                     <div class="stats-card">
                         <div class="stats-icon" style="background-color: var(--info-bg); color: var(--info);">📋</div>
@@ -383,7 +336,6 @@
                     </div>
                 </div>
 
-                <!-- Live Quick actions panel -->
                 <div class="cards-grid">
                     <div class="item-card">
                         <h3>Quick Action: Assign Maintenance</h3>
@@ -398,7 +350,6 @@
                 </div>
             </section>
 
-            <!-- View: Admin Complaints Manager -->
             <section class="view-section" id="view-admin-complaints">
                 <div class="page-header">
                     <div class="page-title">
@@ -407,11 +358,9 @@
                     </div>
                 </div>
                 <div id="adminComplaintsList" class="cards-grid">
-                    <!-- Dynamic List of All Complaints -->
                 </div>
             </section>
 
-            <!-- View: Admin Proposals Manager -->
             <section class="view-section" id="view-admin-proposals">
                 <div class="page-header">
                     <div class="page-title">
@@ -420,11 +369,9 @@
                     </div>
                 </div>
                 <div id="adminProposalsList" class="cards-grid">
-                    <!-- Dynamic List of All Proposals for Admin -->
                 </div>
             </section>
 
-            <!-- View: Admin Technicians Directory -->
             <section class="view-section" id="view-admin-technicians">
                 <div class="page-header">
                     <div class="page-title">
@@ -435,7 +382,6 @@
 
                 <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 32px; align-items: start;">
                     
-                    <!-- Add Technician Form Card -->
                     <div style="background-color: var(--card-bg); padding: 28px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
                         <h3 style="margin-bottom: 20px;">Register New Technician</h3>
                         <form id="newTechnicianForm">
@@ -464,11 +410,9 @@
                         </form>
                     </div>
 
-                    <!-- Technicians List Card -->
                     <div style="background-color: var(--card-bg); padding: 28px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); min-height: 300px;">
                         <h3 style="margin-bottom: 20px;">Registered Service Staff</h3>
                         <div id="techniciansList" style="display: flex; flex-direction: column; gap: 12px;">
-                            <!-- Dynamic Technicians List -->
                         </div>
                     </div>
 
@@ -478,7 +422,6 @@
         </main>
     </div>
 
-    <!-- Application Main Script -->
     <script src="app.js"></script>
 </body>
 </html>

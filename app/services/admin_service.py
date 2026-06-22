@@ -9,7 +9,6 @@ class AdminService:
         Retrieves aggregate statistics for complaints and proposals.
         """
         try:
-            # Query status field for complaints and proposals
             complaints_res = supabase.table("complaints").select("status").execute()
             proposals_res = supabase.table("proposals").select("status").execute()
             
