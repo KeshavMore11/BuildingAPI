@@ -26,8 +26,8 @@ class AdminService:
             return {
                 "total_complaints": total_complaints,
                 "pending_complaints": pending_complaints,
-                "in_progress": in_progress,
-                "completed": completed,
+                "in_progress_complaints": in_progress,
+                "completed_complaints": completed,
                 "total_proposals": total_proposals,
                 "approved_proposals": approved_proposals
             }
