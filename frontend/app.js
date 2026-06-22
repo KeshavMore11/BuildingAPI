@@ -1,5 +1,10 @@
+localStorage.removeItem('gokuldham_apiUrl');
+const defaultApiUrl = (window.location.origin && window.location.origin.startsWith('http')) 
+    ? window.location.origin 
+    : 'https://buildingapi-ep6h.onrender.com';
+
 const state = {
-    apiUrl: localStorage.getItem('gokuldham_apiUrl') || 'https://buildingapi-ep6h.onrender.com',
+    apiUrl: defaultApiUrl,
     token: localStorage.getItem('gokuldham_token') || null,
     user: JSON.parse(localStorage.getItem('gokuldham_user')) || null,
     activeTab: localStorage.getItem('gokuldham_activeTab') || null,
