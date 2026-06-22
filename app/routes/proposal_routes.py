@@ -11,26 +11,21 @@ router = APIRouter(prefix="/proposals", tags=["Proposals"])
     "",
     response_model=ProposalResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Create a new proposal or request (with optional image upload)"
+    summary="Create a new proposal or request (with required image upload)"
 )
 async def create_proposal(
     title: str = Form(..., description="Title of the proposal, e.g. Installation of EV charging points"),
     description: str = Form(..., description="Detailed proposal explanation/proposal specs"),
     poll_enabled: bool = Form(False, description="Set to true if a vote/poll should be automatically launched"),
-    image: Optional[UploadFile] = File(None, description="Optional image/concept plan file"),
+    image: UploadFile = File(..., description="Required image/concept plan file"),
     current_user: dict = Depends(get_current_user)
 ):
     """
     Creates a proposal. If poll_enabled is true, a public poll is automatically generated for society members to vote on.
     """
-    image_content = None
-    image_name = None
-    content_type = None
-    
-    if image:
-        image_content = await image.read()
-        image_name = image.filename
-        content_type = image.content_type
+    image_content = await image.read()
+    image_name = image.filename
+    content_type = image.content_type
         
     return ProposalService.create_proposal(
         user_id=current_user["id"],

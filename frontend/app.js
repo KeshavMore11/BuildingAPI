@@ -1,7 +1,7 @@
 localStorage.removeItem('gokuldham_apiUrl');
 const defaultApiUrl = (window.location.origin && window.location.origin.startsWith('http')) 
     ? window.location.origin 
-    : 'https://buildingapi-ep6h.onrender.com';
+    : 'https://gokhuldhamsociety.onrender.com';
 
 const state = {
     apiUrl: defaultApiUrl,
@@ -399,6 +399,11 @@ document.getElementById('newComplaintForm').addEventListener('submit', async (e)
     const description = document.getElementById('complaintDesc').value.trim();
     const fileInput = document.getElementById('complaintImage');
     
+    if (!title || !description || !fileInput.files[0]) {
+        showToast("Please enter all details, including attaching an image.", "error");
+        return;
+    }
+    
     const submitBtn = document.getElementById('submitComplaintBtn');
     const originalText = submitBtn.innerText;
     submitBtn.innerText = "Filing complaint...";
@@ -408,9 +413,7 @@ document.getElementById('newComplaintForm').addEventListener('submit', async (e)
         const formData = new FormData();
         formData.append('title', title);
         formData.append('description', description);
-        if (fileInput.files[0]) {
-            formData.append('image', fileInput.files[0]);
-        }
+        formData.append('image', fileInput.files[0]);
         
         await apiCall('/complaints', {
             method: 'POST',
@@ -546,6 +549,11 @@ document.getElementById('newProposalForm').addEventListener('submit', async (e) 
     const pollEnabled = document.getElementById('proposalPollEnabled').checked;
     const fileInput = document.getElementById('proposalImage');
     
+    if (!title || !description || !fileInput.files[0]) {
+        showToast("Please enter all details, including attaching an image.", "error");
+        return;
+    }
+    
     const submitBtn = document.getElementById('submitProposalBtn');
     const originalText = submitBtn.innerText;
     submitBtn.innerText = "Submitting proposal...";
@@ -556,9 +564,7 @@ document.getElementById('newProposalForm').addEventListener('submit', async (e) 
         formData.append('title', title);
         formData.append('description', description);
         formData.append('poll_enabled', pollEnabled);
-        if (fileInput.files[0]) {
-            formData.append('image', fileInput.files[0]);
-        }
+        formData.append('image', fileInput.files[0]);
         
         await apiCall('/proposals', {
             method: 'POST',

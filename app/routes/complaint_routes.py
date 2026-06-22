@@ -16,21 +16,16 @@ router = APIRouter(prefix="/complaints", tags=["Complaints"])
 async def create_complaint(
     title: str = Form(..., description="Title of the complaint, e.g. Water leak in lobby"),
     description: str = Form(..., description="Detailed explanation of the issue"),
-    image: Optional[UploadFile] = File(None, description="Optional image/photo evidence"),
+    image: UploadFile = File(..., description="Required image/photo evidence"),
     current_user: dict = Depends(get_current_user)
 ):
     """
     Submits a new complaint. If an image file is attached, it is automatically
     uploaded to Supabase Storage and the link is saved in the record.
     """
-    image_content = None
-    image_name = None
-    content_type = None
-    
-    if image:
-        image_content = await image.read()
-        image_name = image.filename
-        content_type = image.content_type
+    image_content = await image.read()
+    image_name = image.filename
+    content_type = image.content_type
         
     return ComplaintService.create_complaint(
         user_id=current_user["id"],
