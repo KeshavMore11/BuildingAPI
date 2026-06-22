@@ -90,3 +90,16 @@ def update_status(
     Updates the complaint's current status (Pending, In Progress, Completed, Rejected).
     """
     return ComplaintService.update_status(complaint_id=id, new_status=payload.status)
+
+@router.delete(
+    "/{id}",
+    summary="Delete a complaint (Owner only)"
+)
+def delete_complaint(
+    id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Deletes a complaint. Only accessible to the user who registered the complaint.
+    """
+    return ComplaintService.delete_complaint(complaint_id=id, user_id=current_user["id"])

@@ -151,3 +151,32 @@ class ComplaintService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Database error during complaint status update: {str(e)}"
             )
+
+    @staticmethod
+    def delete_complaint(complaint_id: str, user_id: str) -> dict:
+        """
+        Deletes a complaint. Only allowed if the complaint belongs to the user.
+        """
+        try:
+            complaint_check = supabase.table("complaints").select("user_id").eq("id", complaint_id).execute()
+            if not complaint_check.data or len(complaint_check.data) == 0:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Complaint not found"
+                )
+            
+            if str(complaint_check.data[0]["user_id"]) != str(user_id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You do not have permission to delete this complaint"
+                )
+            
+            response = supabase.table("complaints").delete().eq("id", complaint_id).execute()
+            return {"message": "Complaint deleted successfully", "id": complaint_id}
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Database error during complaint deletion: {str(e)}"
+            )
